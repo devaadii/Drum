@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Drum Kit</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Arvo"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <h1 id="title">Drum 🥁 Kit</h1>
+    <div class="set">
+      <button class="w drum">w</button>
+      <button class="a drum">a</button>
+      <button class="s drum">s</button>
+      <button class="d drum">d</button>
+      <button class="j drum">j</button>
+      <button class="k drum">k</button>
+      <button class="l drum">l</button>
+    </div>
+
+    <footer>Made with ❤️ in Kishangarh.</footer>
+    <!-- recorder -->
+    <h3>Audio Recorder</h3>
+
+    <button id="startRecording">Start Recording</button>
+    <button id="stopRecording" disabled>Stop Recording</button>
+    <a id="downloadLink" style="display: none">Download Recording</a>
+
+    <script>
+      let mediaRecorder;
+      let recordedChunks = [];
+
+      const startRecordingButton = document.getElementById("startRecording");
+      const stopRecordingButton = document.getElementById("stopRecording");
+      const downloadLink = document.getElementById("downloadLink");
+
+      startRecordingButton.addEventListener("click", startRecording);
+      stopRecordingButton.addEventListener("click", stopRecording);
+
+      async function startRecording() {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/wav" });
+          const url = URL.createObjectURL(blob);
+          downloadLink.href = url;
+          downloadLink.download = "recorded_audio.wav";
+          downloadLink.style.display = "block";
+          recordedChunks = [];
+        };
+
+        startRecordingButton.disabled = true;
+        stopRecordingButton.disabled = false;
+
+        mediaRecorder.start();
+      }
+
+      function stopRecording() {
+        mediaRecorder.stop();
+        startRecordingButton.disabled = false;
+        stopRecordingButton.disabled = true;
+      }
+    </script>
+
+    <script src="index.js"></script>
+  </body>
+</html>
